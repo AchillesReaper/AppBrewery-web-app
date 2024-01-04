@@ -11,10 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 
 function passwordCheck(req, res, next) {
-    console.log('req url');
-    console.log('psw check invoked');
     const pswInput = req.body.password;
-    console.log('psw: ', pswInput);
     if (pswInput === 'ILoveProgramming') {
         res.sendFile(__dirname + "/public/secret.html");
     } else {
