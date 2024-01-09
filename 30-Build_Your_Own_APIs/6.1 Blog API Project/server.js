@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.get("/", async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/posts`);
-    console.log(response);
+    console.log(response.data);
     res.render("index.ejs", { posts: response.data });
   } catch (error) {
     res.status(500).json({ message: "Error fetching posts" });
