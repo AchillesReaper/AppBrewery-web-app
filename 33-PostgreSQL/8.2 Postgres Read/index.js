@@ -1,22 +1,49 @@
 import express from "express";
 import bodyParser from "body-parser";
+import pg from 'pg';
 
 const app = express();
 const port = 3000;
 
 let totalCorrect = 0;
+let quiz = [];
+let currentQuestion = {};
+
+const db = new pg.Client({
+  host: 'localhost',
+  port: '5433',
+  user: 'postgres',
+  password: '1234',
+  database: 'world'
+})
+
+db.connect()
+
+db.query('SELECT * FROM flags', (err, result) => {
+  if (err){
+    console.log("Error executing query", err.stack);
+  } else {
+    quiz = result.rows
+  }
+  db.end()
+})
+
+function nextQuestion() {
+  const randomCountry = quiz[Math.floor(Math.random() * quiz.length)];
+  currentQuestion = randomCountry;
+  console.log(currentQuestion);
+}
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-let currentQuestion = {};
+
 
 // GET home page
 app.get("/", (req, res) => {
   totalCorrect = 0;
   nextQuestion();
-  console.log(currentQuestion);
   res.render("index.ejs", { question: currentQuestion });
 });
 
@@ -24,7 +51,7 @@ app.get("/", (req, res) => {
 app.post("/submit", (req, res) => {
   let answer = req.body.answer.trim();
   let isCorrect = false;
-  if (currentQuestion.capital.toLowerCase() === answer.toLowerCase()) {
+  if (currentQuestion.name.toLowerCase() === answer.toLowerCase()) {
     totalCorrect++;
     console.log(totalCorrect);
     isCorrect = true;
@@ -38,10 +65,6 @@ app.post("/submit", (req, res) => {
   });
 });
 
-function nextQuestion() {
-  const randomCountry = quiz[Math.floor(Math.random() * quiz.length)];
-  currentQuestion = randomCountry;
-}
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
