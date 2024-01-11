@@ -1,14 +1,38 @@
 import express from "express";
-import bodyParser from "body-parser";
+import pg from 'pg'
 
 const app = express();
 const port = 3000;
 
-app.use(bodyParser.urlencoded({ extended: true }));
+
+const db = new pg.Client({
+  host: 'localhost',
+  port: '5433',
+  user: 'postgres',
+  password: '1234',
+  database: 'world'
+})
+
+db.connect()
+let visited_countries = []
+
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+
 app.get("/", async (req, res) => {
-  //Write your code here.
+
+  const result = await db.query("SELECT country_code FROM visited_countries");
+  console.log(result.rows);
+
+  let countries = result.rows.map((row) => row.country_code)
+  console.log(countries);
+
+
+  res.render("index.ejs", { countries: countries, total: countries.length });
+
+  db.end();
 });
 
 app.listen(port, () => {
