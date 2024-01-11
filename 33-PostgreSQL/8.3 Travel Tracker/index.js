@@ -40,8 +40,8 @@ app.post('/add', async (req, res) => {
   const input = req.body.country
 
   const qResult = await db.query(
-    "select country_code from countries WHERE country_name  = $1",
-    [input]
+    "select country_code from LOWER(countries) WHERE country_name  LIKE '%' || $1 || '%'",
+    [input.toLowerCase()]
   )
 
   if (qResult.rowCount == 1) {
@@ -58,10 +58,16 @@ app.post('/add', async (req, res) => {
       res.redirect('/');
     } else {
       console.log("Conunty has already been added. Try again");
-      res.render('index.ejs', { countries: visitedCountries, total: visitedCountries.length, error: "Conunty has already been added. Try again" })
+      res.render('index.ejs', { 
+        countries: visitedCountries, 
+        total: visitedCountries.length, 
+        error: "Conunty has already been added. Try again" })
     }
   } else {
-    res.render('index.ejs', { countries: visitedCountries, total: visitedCountries.length, error: "Country name does not exist. Try again" })
+    res.render('index.ejs', { 
+      countries: visitedCountries, 
+      total: visitedCountries.length, 
+      error: "Country name does not exist. Try again" })
   }
 
 })
