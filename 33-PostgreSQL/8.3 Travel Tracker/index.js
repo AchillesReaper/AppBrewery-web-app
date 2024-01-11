@@ -20,20 +20,38 @@ let visited_countries = []
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-
+// GET home page
 app.get("/", async (req, res) => {
-
   const result = await db.query("SELECT country_code FROM visited_countries");
-  console.log(result.rows);
-
   let countries = result.rows.map((row) => row.country_code)
-  console.log(countries);
-
-
   res.render("index.ejs", { countries: countries, total: countries.length });
-
-  db.end();
+  // db.end();
 });
+
+//INSERT new country
+app.post('/add', async (req, res) => {
+  const input = req.body.country
+
+  console.log(`input = ${input}, type: ${typeof(input)}`);
+
+  const qResult = await db.query(
+    "select country_code from countries WHERE country_name  = $1",
+    [input]
+  )
+  console.log(qResult.rows);
+  console.log(`rowCount = ${qResult.rowCount}, type: ${typeof(qResult.rowCount)}`);
+
+  if (qResult.rowCount == 1) {
+    const countryCode = qResult.rows[0].country_code
+    console.log(countryCode);
+    await db.query(
+      "INSERT INTO visited_countries (country_code) VALUES ($1)",
+      [countryCode]
+    )
+  }
+  res.redirect('/');
+
+})
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
