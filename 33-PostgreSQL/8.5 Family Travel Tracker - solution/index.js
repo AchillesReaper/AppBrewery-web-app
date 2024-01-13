@@ -1,61 +1,46 @@
 import express from "express";
+import bodyParser from "body-parser";
 import pg from "pg";
 
 const app = express();
 const port = 3000;
 
 const db = new pg.Client({
-  host: 'localhost',
-  port: '5433',
-  user: 'postgres',
-  password: '1234',
-  database: 'world'
-})
-
+  user: "postgres",
+  host: "localhost",
+  database: "world",
+  password: "123456",
+  port: 5432,
+});
 db.connect();
 
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-let currentMemberId = 1;
-let members = [];
-let visitedCountries = [];
+let currentUserId = 1;
 
-async function getVisitedCountries() {
-  // get visited countries from database, return visitedCountries a new array or remain empty 
-  const result = await db.query("SELECT country_code FROM visited_countries_family WHERE members_id = $1", [currentMemberId])
-  try {
-    visitedCountries = result.rows.map((row) => row.country_code)
-  } catch (err) {
-    console.log(err);
-  }
+let users = [
+  { id: 1, name: "Angela", color: "teal" },
+  { id: 2, name: "Jack", color: "powderblue" },
+];
+
+async function checkVisisted() {
+  const result = await db.query("SELECT country_code FROM visited_countries");
+  let countries = [];
+  result.rows.forEach((country) => {
+    countries.push(country.country_code);
+  });
+  return countries;
 }
-
-async function getFamilyMember() {
-  // get all family members -> update global variable `members`
-  const result = await db.query("SELECT * FROM members ")
-  try {
-    members = result.rows
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-// GET home page
 app.get("/", async (req, res) => {
-  await getVisitedCountries();
-  await getFamilyMember();
+  const countries = await checkVisisted();
   res.render("index.ejs", {
-    countries: visitedCountries,
-    total: visitedCountries.length,
-    members: members,
+    countries: countries,
+    total: countries.length,
+    users: users,
     color: "teal",
   });
 });
-
-
-
-//INSERT new country
 app.post("/add", async (req, res) => {
   const input = req.body["country"];
 
@@ -80,8 +65,7 @@ app.post("/add", async (req, res) => {
     console.log(err);
   }
 });
-
-app.post("/member", async (req, res) => { });
+app.post("/user", async (req, res) => {});
 
 app.post("/new", async (req, res) => {
   //Hint: The RETURNING keyword can return the data that was inserted.

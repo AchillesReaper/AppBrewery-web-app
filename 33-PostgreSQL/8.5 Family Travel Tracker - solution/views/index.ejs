@@ -9,13 +9,13 @@
 </head>
 
 <body>
-  <form class="tab-view tab-view-height-auto" action="/member" method="post">
-    <% members.forEach(function(member) { %>
-      <input type="submit" name="member" value="<%= member.id %>" id="<%= member.id %>">
-      <label for="<%= member.id %>" style="background-color: <%= member.color %>;">
-        <%= member.name %>
+  <form class="tab-view tab-view-height-auto" action="/user" method="post">
+    <% users.forEach(function(user) { %>
+      <input type="submit" name="user" value="<%= user.id %>" id="<%= user.id %>">
+      <label for="<%= user.id %>" style="background-color: <%= user.color %>;">
+        <%= user.name %>
       </label>
-    <% }); %>
+      <% }); %>
 
         <input type="submit" name="add" value="new" id="tab">
         <label for="tab">Add Family Member</label>
