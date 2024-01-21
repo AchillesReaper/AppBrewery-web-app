@@ -40,7 +40,9 @@ app.post('/register', async (req, res) => {
   const password = req.body.password;
 
   db.query("SELECT * FROM users WHERE email = $1", [email], (err, result) => {
-    if (err) {
+    // console.log(`result = ${JSON.stringify(result)}`);
+    // console.log(`err = ${err}`);
+    if (result.rowCount === 0) {
       bcrypt.hash(password, saltRounds, async (errB, hash) => {
         if (errB) {
           console.error("Error hashing password:", errB);
